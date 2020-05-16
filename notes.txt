@@ -33,3 +33,16 @@ Una vez aceptamos, se crea un JOB.
 El job basicamente tiene una serie de pasos que se ejecutan, y azure lo hace automaticamente. Aca no cambiamos nada, asique esta toodo bien 
 y el job inicia, hace todo y finaliza ok. Mas sobre JOBS y demas, en los proximos pasos.
 
+A priori vemos que un job, es decir, esta ejecucion de pasos, se hace cada vez que commiteas codigo. Recien updateamos el yaml creado por 
+azure, y commiteamos, y al pushearlo vemos que en azure devops se crea otro job. Es decir, el job se crea cuando se hace run en el pipeline,
+y a su vez, cuando se commitea, se hace run, con lo cual se crea el job.
+
+Ahora, analizando el archivo yaml de a partes, vemos que lo primero es:
+
+trigger:
+- master
+
+El trigger lo que indica es "en que branch se corre el pipeline cuando ejecutamos el commit". Es decir... si el trigger no fuese master,
+si estuviesemos trabajando en otra branch, y hacemos commit, con la configuracion de arriba no estariamos iniciando un run del pipeline, ya que 
+solo estaria seteado para que triggeree en master. Podemos hacer run manualmente (manual triggering) desde azure devops para correr el pipeline.
+
