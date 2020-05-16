@@ -1,0 +1,35 @@
+Arrancamos la seccion de Azure DevOps. Seteamos cuentas y demas, y vamosa comenzar ahora.
+
+Creamos el proyecto dentro de azure devops. 
+
+Notese que dentro de aca se puede crear un repo, nosotros avmos a crear un repo en github.
+
+Creamos el repo y despues simplemente pusheamos y tal,
+
+git init
+git add *
+git add .
+git add .gitignore
+git commit -m "first commit"
+git remote add origin https://github.com/julianbjornsson/azure-devops-kubernetes-terraform-pipeline.git
+git push -u origin master
+
+Seteado el repo, vamos a crear el pipeline:
+
+Creamos el pipeline con el boton (es interactivo). El primer paso para crear el pipeline es elegir de donde se va a tomar el codigo, y nos 
+da a elegir entre varios version control. Nosotros elegimos GIT (tiene uno que es Azure Git, que es por si creas el usuario de git desde 
+Azure. Exacto, Azur te crea un par de credenciales para que puedas usar Git sin tu cuenta, digamos.) Luego hay que elegir el repo, te pide 
+vincular la cuenta de azure con tu cuenta de github, te pregunta para instalar azure devops en tu github y una vez ahi, te 
+detecta la configuracion basado en lo que tenes en el repo.
+
+Entonces, en este caso detecta que tenemos un dockerfile en el repo, por ejemplo, y nos provee la posibilidad de configurar desde docker, 
+k8s, etc. Vamos a hacer click en "Starter Pipeline", lo vamos a configurar con un YAML.
+
+Lo primero que hacemos es cambiar e nombre. Por defecto, todos los pipelines que inicies en azure (o mas bien sus archivos yaml) se llaman 
+azure-pipeline.yaml. Empezamos por renombrar ese default, y le damos a "save and run". Esto basicamente va a commitearlo, y nos da la opcion 
+de escribir un mensaje de commit y por supuesto de elegir si queremos que vaya a la branch actual (master ne este caso ) o crear una nueva
+Una vez aceptamos, se crea un JOB.
+
+El job basicamente tiene una serie de pasos que se ejecutan, y azure lo hace automaticamente. Aca no cambiamos nada, asique esta toodo bien 
+y el job inicia, hace todo y finaliza ok. Mas sobre JOBS y demas, en los proximos pasos.
+
