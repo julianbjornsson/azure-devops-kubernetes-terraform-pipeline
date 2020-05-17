@@ -46,3 +46,123 @@ El trigger lo que indica es "en que branch se corre el pipeline cuando ejecutamo
 si estuviesemos trabajando en otra branch, y hacemos commit, con la configuracion de arriba no estariamos iniciando un run del pipeline, ya que 
 solo estaria seteado para que triggeree en master. Podemos hacer run manualmente (manual triggering) desde azure devops para correr el pipeline.
 
+pool:
+  vmImage: 'ubuntu-latest'
+
+Esto lo que hace es especificar el agente. QUe es el agente? basicamente es el tipo de maquin avirtual en la que se corre tu pipeline. Aca, 
+estamos corriendo el pipeline en una vm de ubuntu, con la ultima version. Podes configurar desde aca que tipo de maquina queres que corra el 
+pipeline, si windows o lo que sea. El pool de agentes que estamos usando es el de azure, pero tranquilamente podes usar servidores propios, 
+lo cual tenes que configurar en la opcion "Agents", en el project settings.
+
+El proximo paso, son los pasos que queres ejecutar ne tu pipeline. Azure DevOps ofrece mucha flexibilida en cuanto a como corres tus pipelines.
+Podes ordenar las cosas uqe queres correr en stages, jobs, o steps/tasks. Este es el que viene con el file que crea azure:
+
+steps:
+  -script: echo Hello, World!
+   displayName: 'Run a one-line script'
+  
+  -script: |
+    echo Add other tasks to build, test, and deploy your project.
+    echo See https://aka.ms/yaml
+  displayName: 'Run a multi-line script'
+
+  Lo que vemos aca son tareas, las tareas son el elemento mas basico en azure pipelines y se estan implementando aca como steps.
+  Se puede usar si queres steps y tasks como si fuesen sinonimos, son basicamente lo mismo. Vemos que la primer tarea es un one-line script 
+  que corre un echo, y el 2do es un multi-line script, por lo que vemos que azure permite correr ambos tipos de scripts y que esta es la forma 
+  correcta de hacerlo (que es, con el pipe despues del -script.)
+  Es decir, para one line usas -script: y los pasos, y para multi line usas -script: |
+
+En el pipeline, tenemos STAGES, que son basicamente bloques en los que haces algo especifico, podes tener un STAGE para buildear, otro para 
+deployear a un entorno, otro para deployear a otro, etc. Cada STAGE esta compuesto por JOBS. Los jobs son, coo vimos antes, la ejecucion 
+de una serie de steps(o tasks). Podes tener mas de un job para correr en una musma BUILD (me estoy refiriendo a build aca como correr los 
+jobs y commitear el codigo con el boton run, puede que la definicion cambie). Para verlo graficao seria algo asi:
+
+Pipeline ---> STAGES ---> JOBS ---> steps
+
+Es importante remarcar que se pueden tener varios jobs en un mismo stage, en e mismo yaml. Como se usa? Hast ahora, tenemos esto:
+
+trigger:
+- master
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+- script: echo Hello, world, updated!
+  displayName: 'Run a one-line script'
+
+- script: |
+    echo Add other tasks to build, test, and deploy your project.
+    echo See https://aka.ms/yaml
+  displayName: 'Run a multi-line script'
+
+Para agregar un job, hay que usar otro atributo dentro del yaml. Entonces, agregamos y quedaria asi:
+
+trigger:
+- master
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+
+jobs:
+- job: job1
+  steps:
+  - script: echo JOB1 - Hello, world, updated!
+    displayName: 'Run a one-line script'
+
+  - script: |
+        echo Add other tasks to build, test, and deploy your project.
+        echo See https://aka.ms/yaml
+    displayName: 'Run a multi-line script'
+- job: job2
+  steps:
+  - script: echo JOB 2!!
+  displayName: 'Run a one-line script'
+
+
+Entonces, vemos que solo agregamos la categoria jobs y empezamos a agregar ahi, con esa sintaxis (-job: jobname). AHora si, commiteamos y vemos 
+como reacciona Azure ante <1 job. 
+
+Lo importante que llevarse de aca es que observamos que Azure ejecuta cada job indiviudalmente. Te ejecuta uno, y hasta que no termina, el  
+otro queda queued. Cuando lo ejecuta, lo hjace en otro agente (otro virtual server). 
+
+Como haces para crear una dependencia entre jobs? es decir, que sea secuenciado de otra manera? con dependsOn.
+
+Podes agregar dependsOn: jobname --> para decir que tal job no se ejecute hasta que se cumpla tal otro/otros jobs. Asi queda nuestro archivo:
+
+NOTA: en azure devops y en la ejecucion salvo el job1 todos figuran como Run a one-line script, porque asi esta el displayName que me olvide 
+de cambiar. Ahora lo modifique y lo comittee de nuevo y se ve bien.
+
+jobs:
+- job: job1
+  steps:
+  - script: echo JOB1 - Hello, world, updated!
+    displayName: 'Run a one-line script'
+
+  - script: |
+        echo Add other tasks to build, test, and deploy your project.
+        echo See https://aka.ms/yaml
+    displayName: 'Run a multi-line script'
+- job: job2
+  dependsOn: job1
+  steps:
+  - script: echo JOB 2!!
+  displayName: 'job2'
+- job: job3
+  dependsOn: job1
+  steps:
+  - script: echo JOB 3!!
+  displayName: 'job3'
+- job: job4
+  dependsOn: 
+  - job2
+  - job3
+  steps:
+  - script: echo JOB 4!!
+  displayName: 'job4'  
+
+  Al ejecutarlo asi, el job 1 va a arrancar normalmente porque no tiene restriccion (y es el primero). El job 2 y el job 3 pueden arrancar 
+  una vez el job 1 este listo (no antes), y el job 4 solo va a arrancar cuando el 2 y el 3 hayan terminado bien.
+
+  
