@@ -23,16 +23,16 @@ jobs:
   dependsOn: job1
   steps:
   - script: echo JOB 2!!
-  displayName: 'Run a one-line script'
+  displayName: 'job2'
 - job: job3
   dependsOn: job1
   steps:
   - script: echo JOB 3!!
-  displayName: 'Run a one-line script'
+  displayName: 'job3'
 - job: job4
   dependsOn: 
   - job2
   - job3
   steps:
   - script: echo JOB 4!!
-  displayName: 'Run a one-line script'  
+  displayName: 'job4'  
