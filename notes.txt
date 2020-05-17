@@ -165,4 +165,9 @@ jobs:
   Al ejecutarlo asi, el job 1 va a arrancar normalmente porque no tiene restriccion (y es el primero). El job 2 y el job 3 pueden arrancar 
   una vez el job 1 este listo (no antes), y el job 4 solo va a arrancar cuando el 2 y el 3 hayan terminado bien.
 
-  
+  ################################################################################################################################
+
+  STAGES:
+
+  Primero vamos a crear un nuevo pipeline. Renombramos el existente a 01-first-pipeline, y creamos un nuevo pipeline. Podemos crear mas 
+  de un pipeline con el mismo github (logicamente). 
