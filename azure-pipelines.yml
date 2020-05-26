@@ -23,8 +23,8 @@ stages:
     - task: Docker@2
       displayName: Build an image
       inputs:
-        containerRegistry: 'in28min-docker-hub'
-        repository: 'jbjornsson/currency-exchange-devops'
+        containerRegistry: 'julianbjornsson-devops-azure'
+        repository: 'julianbjornsson/azure-devops-kubernetes-terraform-pipeline'
         command: 'buildAndPush'
         Dockerfile: '**/Dockerfile'
         tags: '$(tag)'
